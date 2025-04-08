@@ -1,0 +1,39 @@
+---
+title: "stat155_quarto"
+author: "Ipsita Bisht"
+format: html
+editor: visual
+---
+
+# Intro to my project
+
+Here is the intro to my project for **STAT 155**. I am currently looking into *what questions* I would like to answer with an existing data set 
+
+# Topics I am interested in 
+
+I am interested in understanding how businesses create personalized results and content for users that match users preferences and behaviors. Music, movies, shows, recipes, etc. can be personalized to each person. I also would like to explore things like filter bubbles and how too much personalization can be detrimental to individuals and people as a whole. 
+
+![Smiski studying](smiski.png){width="40%"}
+
+# About Me
+
+* student
+    + Computer Science + Stats minor
+    + 4th year
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

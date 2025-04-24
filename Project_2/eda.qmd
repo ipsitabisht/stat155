@@ -1,0 +1,115 @@
+---
+title: "EDA - Spotify Tracklist Data"
+format: html
+editor: visual
+---
+
+# Exploratory Data Analysis
+
+## Research Questions and Analysis
+
+As mentioned in Project 1, I will be exploring the Spotify Track List dataset from Kaggle and analyze what features contribute to the success of a song across the different genres. Each genre has its unique characteristics that distinguish its sounds, lyrics, tempo, etc from other genres. Trying to understand what makes a song popular without context such as what genre it comes from can provide a limited understanding of the musical elements that impact its popularity. Analyzing a song within its genre provides the context needed to assess its popularity amongst its peers. This is why I am looking into answering the following questions to see what makes up a genre's fingerprint:
+
+1.  What audio features best predict a track's popularity within specific genres
+2.  How do these success factors differ across genres
+3.  Could track lists that deviate from the typical features of their genre still be successful?
+
+### Objective for analysis
+
+The goal for this project is: 1. Understand the correlation of musical features to song popularity (overall and by genre) 2. Predict song popularity using models 3. Explore outliers such as songs that have musical features that deviate from their genre's typical musical finger print and are still popular
+
+## Data Description
+
+Since I will be taking a look at genre specific information, I will be interested in the "track_genre" variable to group the tracks together. I am also interested in the "popularity" column to compare and contrast the songs with higher popularity within a genre compared to the rest. There are a lot of musical and audio features worth looking into as well such as loudness, danceability, tempo, energy, valence, acousticness etc. that can provide a rich overview of the features within a genre and which of them are more dominant. I would also look into the "explicit" column and "durations_ms". All these columns will assist in reflecting on the musical components of the track itself as well as understanding audience appeal.
+
+## EDA
+
+```{python}
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+df = pd.read_csv("../Project_1/data/spotify_cleaned.csv")
+```
+
+## Univariate
+
+The following graph helps visualize the distribution of song popularity by frequency. Here we can see there is a spike in 0 popularity for ~10000. Since the frequency of songs start to decrease as popularity increases, we can determine a song to be a hit if it reaches around 80 rather than all the way to 100.
+
+```{python}
+plt.figure(figsize=(8, 6))
+sns.histplot(data=df, x="popularity")
+plt.xlabel("Popularity")
+plt.ylabel("Frequency")
+plt.show()
+```
+
+This graph provides an overview of the popularity distribution across 10 of the most frequent genres from the data set. Genres like mandopop (mandarin pop music) has a higher median (~0.50) as compared to idm (intelligent dance music) which has a median of ~0.15 according to the graph. This tells us that genre is a good indicator of predicting popularity and is needed for our model
+```{python}
+plt.figure(figsize=(8, 6))
+top10 = df["track_genre"].value_counts().head(10).index
+sns.boxplot(data=df[df.track_genre.isin(top10)],
+            x="track_genre", y="popularity")
+plt.xticks(rotation=45, ha="right")
+plt.title("Popularity by genre (top 10)")
+plt.tight_layout(); 
+plt.show()
+
+```
+
+
+## Bivariate
+
+Here the graph shows the density of the 'poopularity' and 'danceability' of the tracks. Most of the tracks lie within the darker parts of the graph at around 0.65 for danceability and between 0.20-0.60 for popularity. This tells us that danceability alone cannot help predict popularity. 
+```{python}
+plt.figure(figsize=(8, 6))
+sns.kdeplot(data=df, x="danceability", y="popularity", fill=True, cmap="Reds", thresh=0.05)
+plt.xlabel("Danceability")
+plt.ylabel("Popularity")
+plt.title("Danceability vs Popularity")
+plt.show()
+```
+
+Same as before, energy alone cannot help us predict the popularity of a song. However from this graph we can see that a lot of the songs from the dataset are high energy given the higher density towards 1.0 
+```{python}
+plt.figure(figsize=(8, 6))
+sns.kdeplot(data=df, x="energy", y="popularity", fill=True, cmap="Blues", thresh=0.05)
+plt.xlabel("Energy")
+plt.ylabel("Popularity")
+plt.title("Popularity vs Energy")
+plt.show()
+```
+
+Valence indicates if a song has more happy or sad tones and based on the density of the graph that a majority of songs tend to be in between 0.0 and 0.50. This does not provide enough information to predict popularity of a song.
+```{python}
+plt.figure(figsize=(8, 6))
+sns.kdeplot(data=df, x="valence", y="popularity", fill=True, cmap="Greens", thresh=0.05)
+plt.xlabel("Valence")
+plt.ylabel("Popularity")
+plt.title("Popularity vs Valence")
+plt.show()
+```
+
+Acousticness indicates if a song has more natural or electric sounds. Based on the density of the graph we can assume a majority of the songs in the dataset are use electronic amplification rather than relying on natural sounds. This again does not indicate much for popularity 
+```{python}
+plt.figure(figsize=(8, 6))
+sns.kdeplot(data=df, x="acousticness", y="popularity", fill=True, cmap="Reds", thresh=0.05)
+plt.xlabel("Acousticness")
+plt.ylabel("Popularity")
+plt.title("Popularity vs Acousticness")
+plt.show()
+```
+
+## Multivariate
+
+
+Below is a correlation matrix capturing the relationships of all the audio/numeric features listed. As seen in the popularity column, most of the audio features have a weak correlation with popularity. This means no specific feature across the whole dataset indicates strongly about track success. Energy and Loudness have a strong positive correlation which can lead to redundancy. Acousticness and Instrumentalness are on the opposite spectram where they have strongly negative correlation with Loudness and Energy. Speechiness is strongly correlated with explicit and negatively with instrumentalness. Key, mode, tempo, and time-signature display near-zero correlations with other variables and with popularity. 
+```{python}
+plt.subplots(figsize=(12,6))  
+plt.subplots_adjust(left=0.25, bottom=0.35) 
+
+sns.heatmap(df.corr(numeric_only=True), annot=False, cmap='coolwarm',
+            vmin=-1, vmax=1)
+plt.title('Audio-Feature Correlations')
+plt.show()
+```

@@ -34,7 +34,7 @@ df = pd.read_csv("../Project_1/data/spotify_cleaned.csv")
 
 ## Univariate
 
-The following graph helps visualize the distribution of song popularity by frequency. Here we can see there is a spike in 0 popularity for ~10000. Since the frequency of songs start to decrease as popularity increases, we can determine a song to be a hit if it reaches around 80 rather than all the way to 100.
+The following graph helps visualize the distribution of song popularity by frequency. Here we can see there is a spike in 0 popularity for \~10000. Since the frequency of songs start to decrease as popularity increases, we can determine a song to be a hit if it reaches around 80 rather than all the way to 100.
 
 ```{python}
 plt.figure(figsize=(8, 6))
@@ -44,7 +44,8 @@ plt.ylabel("Frequency")
 plt.show()
 ```
 
-This graph provides an overview of the popularity distribution across 10 of the most frequent genres from the data set. Genres like mandopop (mandarin pop music) has a higher median (~0.50) as compared to idm (intelligent dance music) which has a median of ~0.15 according to the graph. This tells us that genre is a good indicator of predicting popularity and is needed for our model
+This graph provides an overview of the popularity distribution across 10 of the most frequent genres from the data set. Genres like mandopop (mandarin pop music) has a higher median (\~0.50) as compared to idm (intelligent dance music) which has a median of \~0.15 according to the graph. This tells us that genre is a good indicator of predicting popularity and is needed for our model
+
 ```{python}
 plt.figure(figsize=(8, 6))
 top10 = df["track_genre"].value_counts().head(10).index
@@ -57,10 +58,10 @@ plt.show()
 
 ```
 
-
 ## Bivariate
 
-Here the graph shows the density of the 'poopularity' and 'danceability' of the tracks. Most of the tracks lie within the darker parts of the graph at around 0.65 for danceability and between 0.20-0.60 for popularity. This tells us that danceability alone cannot help predict popularity. 
+Here the graph shows the density of the 'poopularity' and 'danceability' of the tracks. Most of the tracks lie within the darker parts of the graph at around 0.65 for danceability and between 0.20-0.60 for popularity. This tells us that danceability alone cannot help predict popularity.
+
 ```{python}
 plt.figure(figsize=(8, 6))
 sns.kdeplot(data=df, x="danceability", y="popularity", fill=True, cmap="Reds", thresh=0.05)
@@ -70,7 +71,8 @@ plt.title("Danceability vs Popularity")
 plt.show()
 ```
 
-Same as before, energy alone cannot help us predict the popularity of a song. However from this graph we can see that a lot of the songs from the dataset are high energy given the higher density towards 1.0 
+Same as before, energy alone cannot help us predict the popularity of a song. However from this graph we can see that a lot of the songs from the dataset are high energy given the higher density towards 1.0
+
 ```{python}
 plt.figure(figsize=(8, 6))
 sns.kdeplot(data=df, x="energy", y="popularity", fill=True, cmap="Blues", thresh=0.05)
@@ -81,6 +83,7 @@ plt.show()
 ```
 
 Valence indicates if a song has more happy or sad tones and based on the density of the graph that a majority of songs tend to be in between 0.0 and 0.50. This does not provide enough information to predict popularity of a song.
+
 ```{python}
 plt.figure(figsize=(8, 6))
 sns.kdeplot(data=df, x="valence", y="popularity", fill=True, cmap="Greens", thresh=0.05)
@@ -90,7 +93,8 @@ plt.title("Popularity vs Valence")
 plt.show()
 ```
 
-Acousticness indicates if a song has more natural or electric sounds. Based on the density of the graph we can assume a majority of the songs in the dataset are use electronic amplification rather than relying on natural sounds. This again does not indicate much for popularity 
+Acousticness indicates if a song has more natural or electric sounds. Based on the density of the graph we can assume a majority of the songs in the dataset are use electronic amplification rather than relying on natural sounds. This again does not indicate much for popularity
+
 ```{python}
 plt.figure(figsize=(8, 6))
 sns.kdeplot(data=df, x="acousticness", y="popularity", fill=True, cmap="Reds", thresh=0.05)
@@ -102,8 +106,8 @@ plt.show()
 
 ## Multivariate
 
+Below is a correlation matrix capturing the relationships of all the audio/numeric features listed. As seen in the popularity column, most of the audio features have a weak correlation with popularity. This means no specific feature across the whole dataset indicates strongly about track success. Energy and Loudness have a strong positive correlation which can lead to redundancy. Acousticness and Instrumentalness are on the opposite spectram where they have strongly negative correlation with Loudness and Energy. Speechiness is strongly correlated with explicit and negatively with instrumentalness. Key, mode, tempo, and time-signature display near-zero correlations with other variables and with popularity.
 
-Below is a correlation matrix capturing the relationships of all the audio/numeric features listed. As seen in the popularity column, most of the audio features have a weak correlation with popularity. This means no specific feature across the whole dataset indicates strongly about track success. Energy and Loudness have a strong positive correlation which can lead to redundancy. Acousticness and Instrumentalness are on the opposite spectram where they have strongly negative correlation with Loudness and Energy. Speechiness is strongly correlated with explicit and negatively with instrumentalness. Key, mode, tempo, and time-signature display near-zero correlations with other variables and with popularity. 
 ```{python}
 plt.subplots(figsize=(12,6))  
 plt.subplots_adjust(left=0.25, bottom=0.35) 

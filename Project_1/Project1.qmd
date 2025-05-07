@@ -22,20 +22,19 @@ That is why I will be studying how these different musical features can contribu
 
 Interiano, M., Kazemi, K., Wang, L., Yang, J., Yu, Z., & Komarova, N. L. (2018). Musical trends and predictability of success in contemporary songs in and out of the top charts. Royal Society Open Science
 
-### Hypothesis
-
-...
-
 ### Spotify TrackList Dataset
 
 This data set provides a comprehensive overview of over 100,000 tracks in Spotify and contains songs from over 125 different genres. Each observation in the data set contains the track metadata (name, album, artist, duration), popularity scale, and numerous musical features. The popularity scale is given by Spotify as a range from 0-100 based mostly on recent listening activity. The musical features and metrics for example are danceability, tempo, liveness, valence, etc which are derived from Spotify's own algorithms and techniques.
 
-These features and metrics come from the Spotfiy's Web API that is able to get audio feature information based on the track id.
+Kaggle Source: https://www.kaggle.com/datasets/maharshipandya/-spotify-tracks-dataset/data
+
+These features and metrics come from the Spotfiy's Web API that is able to get audio feature information based on the track id through making HTTP requests. The endpoint for getting a songs audio features based on track id is now deprecated. To get the dataset, download from Kaggle as a csv and run the cleaning_processing.py script in the /data folder to get the spotify_cleaned dataset.
 
 ## Data
 
 ```{python}
-!python data/cleaning.py
+import subprocess
+subprocess.run(["python", "data/cleaning.py"])
 ```
 
 ```{r}

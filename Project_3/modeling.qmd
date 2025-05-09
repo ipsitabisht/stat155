@@ -4,23 +4,129 @@ format: html
 editor: visual
 ---
 
-## Quarto
+## Introduction and Data
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Music features and preferences vary across different genres which can lead to varying definitions of what makes a song popular in its genre. This project aims to answer the following questions:
 
-## Running Code
+1.  What audio features best predict a track's popularity within specific genres, and how do these success factors differ across genres?
+2.  Could track lists that deviate from the typical features of their genre still be successful?
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+In order to predict if a song is a hit and is actually 'popular' I created a variable called 'is_hit' to be a benchmark for determining if a song is popular or not.
 
-```{r}
-1 + 1
+To assess the popularity of a song, we will take a look at the following music feaatures: `jazz, country, rock, dubstep, pop, heavy-metal, bluegrass, soul, reggaeton`
+
+```{python}
+import pandas as pd 
+from load_data import load_file
+
+
+df = load_file()
 ```
 
-You can add options to executable code like this
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-```{r}
-#| echo: false
-2 * 2
+# Plot popularity distribution for selected genres
+interesting_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton']
+df_filtered = df[df['track_genre'].isin(interesting_genres)]
+
+sns.boxplot(x='track_genre', y='popularity', data=df_filtered)
+plt.xticks(rotation=45)
+plt.title("Popularity Distribution by Genre")
+plt.show()
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+## Methodology
+
+To answer the research questions above, specifically the first one, logistic regression model is used to help classify a song as 'a_hit'(1 or 0) based on the features mentioned earlier. This model is run on each genre individually. The data set is split between training and testing with 80% set aside for training and 20% for testing. With the this model, we can take a look at the feature coefficients to see how each feature directly contributes to a songs 'hit' status.
+
+We will train the model using these features:
+
+```{python}
+features = ['danceability', 'energy', 'valence', 'acousticness',
+            'speechiness', 'instrumentalness', 'tempo', 'loudness']
+```
+
+The code used to train the data follows these steps
+
+1.  Filter the data frame by the specific genres selected above
+2.  Standardize each feature
+3.  Split the data
+4.  Trained a logistic regression model
+5.  Evaluated the test set's accuracy
+6.  Extract the coefficient to form the genre fingerprint
+
+```{python}
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+
+  
+# interesting genres
+distinct_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton']
+features = [
+    'danceability', 'energy', 'valence', 'acousticness',
+    'speechiness', 'instrumentalness', 'tempo', 'loudness'
+]
+# jazz, country, k-pop, rock, new-age, disney, dubstep, pop, techno, heavy-metal,bluegrass, soul, synth-pop, reggaeton  
+filtered_interesting_genres = df[df['track_genre'].isin(distinct_genres)]
+print(f"Number of songs in the interesting genres: {len(filtered_interesting_genres)}")
+
+
+genre_fingerprint = {}
+genre_accuracy = {}
+
+for genre in distinct_genres:
+    print(genre)
+    df_genre = df[df['track_genre'] == genre].copy()
+    if df_genre.empty:
+        print(f"No data found for genre: {genre}")
+        continue 
+    X = df_genre[features]
+    
+    if df_genre['is_hit'].nunique() <= 1:
+        print(f"Skipping {genre} - all songs have the same hit status")
+        continue
+    y = df_genre['is_hit']
+
+    scaler = StandardScaler()
+    X_scaler = scaler.fit_transform(X)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    logreg = LogisticRegression(C=0.1, random_state=0, tol=1e-5)
+    logreg.fit(X_train, y_train)
+    y_pred = logreg.predict(X_test)
+    test_acc = accuracy_score(y_test, y_pred)
+    
+
+    genre_fingerprint[genre] = pd.Series(logreg.coef_[0], index=features)
+    genre_accuracy[genre] = test_acc
+    
+fingerprints_df = pd.DataFrame(genre_fingerprint)
+print(genre_accuracy)
+```
+
+Then we can plot the fingerprint plot to see the contributions of each feature for a specific genre
+
+```{python}
+# Plot heatmap-style bar chart
+fingerprints_df.T.plot(kind='bar', figsize=(14, 6), title="Feature Importance per Genre (Logistic Coefficients)")
+plt.xlabel("Genre")
+plt.ylabel("Coefficient (Higher = More Likely to Be a Hit)")
+plt.axhline(0, color='black', linewidth=0.5)
+plt.tight_layout()
+plt.show()
+```
+
+```{python}
+
+```
+
+## Interpretation
+
+From what we see here, the model performs pretty well. For jazz there is an accuracy of 99% and for rock it predicts the hit status with an accuracy of 82%. With the coefficient graphs, if a feature is in the positive direction it increases the songs likelihood of being a hit, while if it is negative, it decreases it. The magnitude indicates how strong the influence is. From the graph we can see that valence and energy seem to be negatively impacting genres rock, pop, soul, and reggeaton. By creating this genre fingerprint mapping, it is easier to see which features contribute to a song's popularity.

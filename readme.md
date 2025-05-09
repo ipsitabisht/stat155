@@ -8,7 +8,8 @@ My project explores the Spotify Track Dataset from Kaggle to understand how diff
 
 -   [Project 2: EDA on dataset and investigating which features are important for the model](./Project_2/eda.qmd)
 
--   Project 3: Model analysis
+-   [Project 3: Model analysis](./Project_3/modeling.qmd)
+
 
 ![Smiski studying](smiski.png){width="100"}
 

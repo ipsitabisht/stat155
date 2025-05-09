@@ -23,6 +23,7 @@ from load_data import load_file
 df = load_file()
 ```
 
+From what we can see in each of these genres, not all songs will achieve the 'hit' status. In our code, which you will see in the coming steps, we disregard the genres where there are no hits or if all the songs have a hit status. 
 ```{python}
 import seaborn as sns
 import matplotlib.pyplot as plt

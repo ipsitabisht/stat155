@@ -23,13 +23,14 @@ from load_data import load_file
 df = load_file()
 ```
 
-From what we can see in each of these genres, not all songs will achieve the 'hit' status. In our code, which you will see in the coming steps, we disregard the genres where there are no hits or if all the songs have a hit status. 
+From what we can see in each of these genres, not all songs will achieve the 'hit' status. In our code, which you will see in the coming steps, we disregard the genres where there are no hits or if all the songs have a hit status.
+
 ```{python}
 import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Plot popularity distribution for selected genres
-interesting_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton']
+interesting_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton', 'house', 'techno', 'k-pop']
 df_filtered = df[df['track_genre'].isin(interesting_genres)]
 
 sns.boxplot(x='track_genre', y='popularity', data=df_filtered)
@@ -68,7 +69,7 @@ import matplotlib.pyplot as plt
 
   
 # interesting genres
-distinct_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton']
+distinct_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton', 'house', 'techno', 'k-pop']
 features = [
     'danceability', 'energy', 'valence', 'acousticness',
     'speechiness', 'instrumentalness', 'tempo', 'loudness'
@@ -125,9 +126,39 @@ plt.show()
 ```
 
 ```{python}
+from sklearn.cluster import KMeans
+
+for genre in interesting_genres:
+  num_cluster = 3
+  df_genre = df[df['track_genre'] == genre].copy()
+  scaled = StandardScaler()
+  X_scaled = scaled.fit_transform(df_genre[features])
+  kmeans = KMeans(n_clusters= num_cluster, random_state=0, n_init="auto").fit(X)
+  
+  df_genre['kmeans_cluster'] = kmeans.fit_predict(X_scaled)
+  df_genre['kmeans_deviation'] = kmeans.transform(X_scaled).min(axis=1)
+  
+    
+    
+  plt.figure(figsize=(6, 4))
+  sns.scatterplot(x='kmeans_deviation', y='popularity', data=df_genre)
+  plt.title(f"{genre.title()} - Deviation vs Popularity")
+  plt.xlabel("Deviation from Cluster Center")
+  plt.ylabel("Popularity")
+  plt.show()
+  
+  plt.figure(figsize=(6, 4))
+  sns.kdeplot(data=df_genre, x='kmeans_deviation', hue='is_hit', common_norm=False, fill=True)
+  plt.title(f"{genre.title()} – Deviation Distribution by Hit Status")
+  plt.xlabel("Deviation from Cluster Center")
+  plt.ylabel("Density")
+  
+  
 
 ```
 
 ## Interpretation
 
 From what we see here, the model performs pretty well. For jazz there is an accuracy of 99% and for rock it predicts the hit status with an accuracy of 82%. With the coefficient graphs, if a feature is in the positive direction it increases the songs likelihood of being a hit, while if it is negative, it decreases it. The magnitude indicates how strong the influence is. From the graph we can see that valence and energy seem to be negatively impacting genres rock, pop, soul, and reggeaton. By creating this genre fingerprint mapping, it is easier to see which features contribute to a song's popularity.
+
+As for the second question, can songs that deviate from their genre's fingerprint still be successful

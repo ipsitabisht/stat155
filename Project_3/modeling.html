@@ -105,19 +105,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ol>
 <p>In order to predict if a song is a hit and is actually ‘popular’ I created a variable called ‘is_hit’ to be a benchmark for determining if a song is popular or not.</p>
 <p>To assess the popularity of a song, we will take a look at the following music feaatures: <code>jazz, country, rock, dubstep, pop, heavy-metal, bluegrass, soul, reggaeton</code></p>
-<div id="4e3b5734" class="cell" data-execution_count="1">
+<div id="e4da3885" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> load_data <span class="im">import</span> load_file</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> load_file()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="33ec0b9d" class="cell" data-execution_count="2">
+<p>From what we can see in each of these genres, not all songs will achieve the ‘hit’ status. In our code, which you will see in the coming steps, we disregard the genres where there are no hits or if all the songs have a hit status.</p>
+<div id="ed6942eb" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot popularity distribution for selected genres</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>interesting_genres <span class="op">=</span> [<span class="st">'jazz'</span>, <span class="st">'country'</span>, <span class="st">'rock'</span>, <span class="st">'dubstep'</span>, <span class="st">'pop'</span>, <span class="st">'heavy-metal'</span>,<span class="st">'bluegrass'</span>, <span class="st">'soul'</span>, <span class="st">'reggaeton'</span>]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>interesting_genres <span class="op">=</span> [<span class="st">'jazz'</span>, <span class="st">'country'</span>, <span class="st">'rock'</span>, <span class="st">'dubstep'</span>, <span class="st">'pop'</span>, <span class="st">'heavy-metal'</span>,<span class="st">'bluegrass'</span>, <span class="st">'soul'</span>, <span class="st">'reggaeton'</span>, <span class="st">'house'</span>, <span class="st">'techno'</span>, <span class="st">'k-pop'</span>]</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df_filtered <span class="op">=</span> df[df[<span class="st">'track_genre'</span>].isin(interesting_genres)]</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>sns.boxplot(x<span class="op">=</span><span class="st">'track_genre'</span>, y<span class="op">=</span><span class="st">'popularity'</span>, data<span class="op">=</span>df_filtered)</span>
@@ -137,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
 <p>To answer the research questions above, specifically the first one, logistic regression model is used to help classify a song as ‘a_hit’(1 or 0) based on the features mentioned earlier. This model is run on each genre individually. The data set is split between training and testing with 80% set aside for training and 20% for testing. With the this model, we can take a look at the feature coefficients to see how each feature directly contributes to a songs ‘hit’ status.</p>
 <p>We will train the model using these features:</p>
-<div id="3e1ea4d3" class="cell" data-execution_count="3">
+<div id="1e63549e" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> [<span class="st">'danceability'</span>, <span class="st">'energy'</span>, <span class="st">'valence'</span>, <span class="st">'acousticness'</span>,</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            <span class="st">'speechiness'</span>, <span class="st">'instrumentalness'</span>, <span class="st">'tempo'</span>, <span class="st">'loudness'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -150,7 +151,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Evaluated the test set’s accuracy</li>
 <li>Extract the coefficient to form the genre fingerprint</li>
 </ol>
-<div id="418de28e" class="cell" data-execution_count="4">
+<div id="7116664a" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
@@ -160,7 +161,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># interesting genres</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>distinct_genres <span class="op">=</span> [<span class="st">'jazz'</span>, <span class="st">'country'</span>, <span class="st">'rock'</span>, <span class="st">'dubstep'</span>, <span class="st">'pop'</span>, <span class="st">'heavy-metal'</span>,<span class="st">'bluegrass'</span>, <span class="st">'soul'</span>, <span class="st">'reggaeton'</span>]</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>distinct_genres <span class="op">=</span> [<span class="st">'jazz'</span>, <span class="st">'country'</span>, <span class="st">'rock'</span>, <span class="st">'dubstep'</span>, <span class="st">'pop'</span>, <span class="st">'heavy-metal'</span>,<span class="st">'bluegrass'</span>, <span class="st">'soul'</span>, <span class="st">'reggaeton'</span>, <span class="st">'house'</span>, <span class="st">'techno'</span>, <span class="st">'k-pop'</span>]</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> [</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'danceability'</span>, <span class="st">'energy'</span>, <span class="st">'valence'</span>, <span class="st">'acousticness'</span>,</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'speechiness'</span>, <span class="st">'instrumentalness'</span>, <span class="st">'tempo'</span>, <span class="st">'loudness'</span></span>
@@ -203,7 +204,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>fingerprints_df <span class="op">=</span> pd.DataFrame(genre_fingerprint)</span>
 <span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(genre_accuracy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of songs in the interesting genres: 8310
+<pre><code>Number of songs in the interesting genres: 10913
 jazz
 country
 rock
@@ -216,11 +217,14 @@ bluegrass
 Skipping bluegrass - all songs have the same hit status
 soul
 reggaeton
-{'jazz': 0.9938271604938271, 'country': 0.9770114942528736, 'rock': 0.8238636363636364, 'pop': 0.8440860215053764, 'soul': 0.9444444444444444, 'reggaeton': 0.88}</code></pre>
+house
+techno
+k-pop
+{'jazz': 0.9938271604938271, 'country': 0.9770114942528736, 'rock': 0.8238636363636364, 'pop': 0.8440860215053764, 'soul': 0.9444444444444444, 'reggaeton': 0.88, 'house': 0.9096774193548387, 'techno': 1.0, 'k-pop': 0.9252873563218391}</code></pre>
 </div>
 </div>
 <p>Then we can plot the fingerprint plot to see the contributions of each feature for a specific genre</p>
-<div id="a740a060" class="cell" data-execution_count="5">
+<div id="a36d5e6d" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot heatmap-style bar chart</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fingerprints_df.T.plot(kind<span class="op">=</span><span class="st">'bar'</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>), title<span class="op">=</span><span class="st">"Feature Importance per Genre (Logistic Coefficients)"</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Genre"</span>)</span>
@@ -236,10 +240,207 @@ reggaeton
 </div>
 </div>
 </div>
+<div id="88e273b7" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.cluster <span class="im">import</span> KMeans</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> genre <span class="kw">in</span> interesting_genres:</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  num_cluster <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  df_genre <span class="op">=</span> df[df[<span class="st">'track_genre'</span>] <span class="op">==</span> genre].copy()</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  scaled <span class="op">=</span> StandardScaler()</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  X_scaled <span class="op">=</span> scaled.fit_transform(df_genre[features])</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  kmeans <span class="op">=</span> KMeans(n_clusters<span class="op">=</span> num_cluster, random_state<span class="op">=</span><span class="dv">0</span>, n_init<span class="op">=</span><span class="st">"auto"</span>).fit(X)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  df_genre[<span class="st">'kmeans_cluster'</span>] <span class="op">=</span> kmeans.fit_predict(X_scaled)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  df_genre[<span class="st">'kmeans_deviation'</span>] <span class="op">=</span> kmeans.transform(X_scaled).<span class="bu">min</span>(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  sns.scatterplot(x<span class="op">=</span><span class="st">'kmeans_deviation'</span>, y<span class="op">=</span><span class="st">'popularity'</span>, data<span class="op">=</span>df_genre)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  plt.title(<span class="ss">f"</span><span class="sc">{</span>genre<span class="sc">.</span>title()<span class="sc">}</span><span class="ss"> - Deviation vs Popularity"</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  plt.xlabel(<span class="st">"Deviation from Cluster Center"</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  plt.ylabel(<span class="st">"Popularity"</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  plt.show()</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  plt.figure(figsize<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>))</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  sns.kdeplot(data<span class="op">=</span>df_genre, x<span class="op">=</span><span class="st">'kmeans_deviation'</span>, hue<span class="op">=</span><span class="st">'is_hit'</span>, common_norm<span class="op">=</span><span class="va">False</span>, fill<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  plt.title(<span class="ss">f"</span><span class="sc">{</span>genre<span class="sc">.</span>title()<span class="sc">}</span><span class="ss"> – Deviation Distribution by Hit Status"</span>)</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  plt.xlabel(<span class="st">"Deviation from Cluster Center"</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  plt.ylabel(<span class="st">"Density"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-4.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-5.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-6.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-7.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-8.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-9.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-10.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-11.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-12.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-13.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-14.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-15.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-16.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-17.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-18.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-19.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-20.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-21.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-22.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-23.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="modeling_files/figure-html/cell-7-output-24.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="interpretation" class="level2">
 <h2 class="anchored" data-anchor-id="interpretation">Interpretation</h2>
 <p>From what we see here, the model performs pretty well. For jazz there is an accuracy of 99% and for rock it predicts the hit status with an accuracy of 82%. With the coefficient graphs, if a feature is in the positive direction it increases the songs likelihood of being a hit, while if it is negative, it decreases it. The magnitude indicates how strong the influence is. From the graph we can see that valence and energy seem to be negatively impacting genres rock, pop, soul, and reggeaton. By creating this genre fingerprint mapping, it is easier to see which features contribute to a song’s popularity.</p>
+<p>As for the second question, can songs that deviate from their genre’s fingerprint still be successful</p>
 </section>
 
 </main>

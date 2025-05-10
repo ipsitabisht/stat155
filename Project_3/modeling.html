@@ -105,7 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ol>
 <p>In order to predict if a song is a hit and is actually ‘popular’ I created a variable called ‘is_hit’ to be a benchmark for determining if a song is popular or not.</p>
 <p>To assess the popularity of a song, we will take a look at the following music feaatures: <code>jazz, country, rock, dubstep, pop, heavy-metal, bluegrass, soul, reggaeton</code></p>
-<div id="e4da3885" class="cell" data-execution_count="1">
+<div id="75c92668" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> load_data <span class="im">import</span> load_file</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -113,7 +113,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> load_file()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>From what we can see in each of these genres, not all songs will achieve the ‘hit’ status. In our code, which you will see in the coming steps, we disregard the genres where there are no hits or if all the songs have a hit status.</p>
-<div id="ed6942eb" class="cell" data-execution_count="2">
+<div id="ed4637a6" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -138,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
 <p>To answer the research questions above, specifically the first one, logistic regression model is used to help classify a song as ‘a_hit’(1 or 0) based on the features mentioned earlier. This model is run on each genre individually. The data set is split between training and testing with 80% set aside for training and 20% for testing. With the this model, we can take a look at the feature coefficients to see how each feature directly contributes to a songs ‘hit’ status.</p>
 <p>We will train the model using these features:</p>
-<div id="1e63549e" class="cell" data-execution_count="3">
+<div id="666b5feb" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>features <span class="op">=</span> [<span class="st">'danceability'</span>, <span class="st">'energy'</span>, <span class="st">'valence'</span>, <span class="st">'acousticness'</span>,</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            <span class="st">'speechiness'</span>, <span class="st">'instrumentalness'</span>, <span class="st">'tempo'</span>, <span class="st">'loudness'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -151,7 +151,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Evaluated the test set’s accuracy</li>
 <li>Extract the coefficient to form the genre fingerprint</li>
 </ol>
-<div id="7116664a" class="cell" data-execution_count="4">
+<div id="556090f4" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LogisticRegression</span>
@@ -224,7 +224,7 @@ k-pop
 </div>
 </div>
 <p>Then we can plot the fingerprint plot to see the contributions of each feature for a specific genre</p>
-<div id="a36d5e6d" class="cell" data-execution_count="5">
+<div id="2f466db1" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot heatmap-style bar chart</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>fingerprints_df.T.plot(kind<span class="op">=</span><span class="st">'bar'</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">6</span>), title<span class="op">=</span><span class="st">"Feature Importance per Genre (Logistic Coefficients)"</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Genre"</span>)</span>
@@ -240,7 +240,7 @@ k-pop
 </div>
 </div>
 </div>
-<div id="88e273b7" class="cell" data-execution_count="6">
+<div id="02705e72" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.cluster <span class="im">import</span> KMeans</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> genre <span class="kw">in</span> interesting_genres:</span>
@@ -440,7 +440,8 @@ k-pop
 <section id="interpretation" class="level2">
 <h2 class="anchored" data-anchor-id="interpretation">Interpretation</h2>
 <p>From what we see here, the model performs pretty well. For jazz there is an accuracy of 99% and for rock it predicts the hit status with an accuracy of 82%. With the coefficient graphs, if a feature is in the positive direction it increases the songs likelihood of being a hit, while if it is negative, it decreases it. The magnitude indicates how strong the influence is. From the graph we can see that valence and energy seem to be negatively impacting genres rock, pop, soul, and reggeaton. By creating this genre fingerprint mapping, it is easier to see which features contribute to a song’s popularity.</p>
-<p>As for the second question, can songs that deviate from their genre’s fingerprint still be successful</p>
+<p>As for the second question, can songs that deviate from their genre’s fingerprint still be successful, the answer to this question comes from taking a closer look at the scatter plots and smoothed histograms of each genre. From what can be seen in each of the smoothed histogram plots, there is a strong overlap between the hit and non-hit songs which can indicate that deviation from the norm doesn’t matter much and doesn’t impact popularity of a song or if it can be classified as a hit. Howver it is interesting to note that some of the genres have a broader distribution of deviations such as pop and country. The tails of these distributions extend towards the right which can indicate that they have some hits that are very unusual compared to the norm. Most of the genres have a common trend of having a higher density of songs 2 deviations away from the norm for both hit and non-hit categories. This can mean that both hit and non-hit songs can be defined as atypical based on how the clusters are defined. This concludes that deviating from the genre’s fingerprint is a weak predictor of a successful song.</p>
+<p>As a result, a songs success within a genre depends on a unique blend of audio features which we have demonstated earlier with the heatmap of the features and their genres. Using the logistic regression model, we see that it can perform well with the given features in a binary classification problem. Song deviations, as we discussed earlier, don’t indicate much about the success of the song itself which we questioned in our research motivation. These findings help solidify our understanding of what sort of features make up a genre and which ones contribute positively and negatively. This can be a helpful tool for those who are interested in producing songs in a specific genre and want to understand what elements can help create a hit. It can also be reassuring to know that songs don’t need to follow these exact feature contribution mappings to be successful given that most songs that are hits are within a certain deviation away from the genre norm.</p>
 </section>
 
 </main>

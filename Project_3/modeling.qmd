@@ -11,9 +11,9 @@ Music features and preferences vary across different genres which can lead to va
 1.  What audio features best predict a track's popularity within specific genres, and how do these success factors differ across genres?
 2.  Could track lists that deviate from the typical features of their genre still be successful?
 
-In order to predict if a song is a hit and is actually 'popular' I created a variable called 'is_hit' to be a benchmark for determining if a song is popular or not.
+In order to predict if a song is a hit and is actually 'popular' I created a vzariable called 'is_hit' to be a benchmark for determining if a song is popular or not.
 
-To assess the popularity of a song, we will take a look at the following music feaatures: `jazz, country, rock, dubstep, pop, heavy-metal, bluegrass, soul, reggaeton`
+To assess the popularity of a song, we will take a look at the following music features: `jazz, country, rock, dubstep, pop, heavy-metal, bluegrass, soul, reggaeton, house, techno, k-pop`
 
 ```{python}
 import pandas as pd 
@@ -46,84 +46,126 @@ To answer the research questions above, specifically the first one, logistic reg
 We will train the model using these features:
 
 ```{python}
-features = ['danceability', 'energy', 'valence', 'acousticness',
-            'speechiness', 'instrumentalness', 'tempo', 'loudness']
+numeric_features = ['danceability', 'energy', 'valence', 'acousticness',
+                        'speechiness', 'instrumentalness', 'tempo', 'loudness']
 ```
 
 The code used to train the data follows these steps
 
 1.  Filter the data frame by the specific genres selected above
-2.  Standardize each feature
-3.  Split the data
-4.  Trained a logistic regression model
-5.  Evaluated the test set's accuracy
-6.  Extract the coefficient to form the genre fingerprint
+2.  Split the data
+3.  Standardize and use One Hot Encoding to transform genre columns
+4.  Incorporate oversampling the minority class ('is_hit' == 1)
+5.  Trained an Artificial Neural Network - MultiLayerPerceptron model
+6.  Evaluated the test set's accuracy and f1 evaluation metrics
+7.  Use Permutation Importance to calculate feature contributions in each genre
+
+```{python}
+# Define the function for calculating feature importance per genre and generating plots 
+def feature_importance(genres, X, y, model, numeric_features):
+    for genre in genres:
+        genre_col = f'track_genre_{genre}'
+        if genre_col not in X.columns:
+            print(f"'{genre_col}' not found. Skipping genre: {genre}")
+            continue
+
+        genre_subset = X[X[genre_col] == 1]
+        y_genre = y.loc[genre_subset.index]
+
+        if genre_subset.empty:
+            print(f"No samples found for genre: {genre}")
+            continue
+
+        r = permutation_importance(
+            model, genre_subset, y_genre,
+            n_repeats=30, random_state=0, n_jobs=-1
+        )
+
+        imp_df = pd.DataFrame({
+            'feature': genre_subset.columns,
+            'importance_mean': r.importances_mean,
+            'importance_std': r.importances_std
+        })
+
+        imp_df_numeric = imp_df[imp_df['feature'].isin(numeric_features)].sort_values(by='importance_mean')
+
+        plt.figure(figsize=(10, 6))
+        plt.barh(imp_df_numeric['feature'], imp_df_numeric['importance_mean'],
+                 xerr=imp_df_numeric['importance_std'])
+        plt.xlabel("Permutation Importance")
+        plt.ylabel("Audio Feature")
+        plt.title(f"Feature Importance for ANN - Genre: {genre}")
+        plt.tight_layout()
+        plt.show()
+```
 
 ```{python}
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.neural_network import MLPClassifier
+from sklearn.inspection import permutation_importance
+from sklearn.metrics import classification_report
+from imblearn.over_sampling import RandomOverSampler
+from imblearn.over_sampling import RandomOverSampler
 
-
-  
 # interesting genres
 distinct_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton', 'house', 'techno', 'k-pop']
-features = [
-    'danceability', 'energy', 'valence', 'acousticness',
-    'speechiness', 'instrumentalness', 'tempo', 'loudness'
-]
-# jazz, country, k-pop, rock, new-age, disney, dubstep, pop, techno, heavy-metal,bluegrass, soul, synth-pop, reggaeton  
-filtered_interesting_genres = df[df['track_genre'].isin(distinct_genres)]
-print(f"Number of songs in the interesting genres: {len(filtered_interesting_genres)}")
+df = df[df['track_genre'].isin(distinct_genres)].copy()
 
 
-genre_fingerprint = {}
-genre_accuracy = {}
+y = df['is_hit']
+X_raw = df.drop(columns=['is_hit'])
 
-for genre in distinct_genres:
-    print(genre)
-    df_genre = df[df['track_genre'] == genre].copy()
-    if df_genre.empty:
-        print(f"No data found for genre: {genre}")
-        continue 
-    X = df_genre[features]
-    
-    if df_genre['is_hit'].nunique() <= 1:
-        print(f"Skipping {genre} - all songs have the same hit status")
-        continue
-    y = df_genre['is_hit']
+X_train_raw, X_test_raw, y_train, y_test = train_test_split(X_raw, y, test_size=0.2, random_state=42)
 
-    scaler = StandardScaler()
-    X_scaler = scaler.fit_transform(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# PREPROCESSING STEPS -> scale, encode, correct class imbalances
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train_raw[numeric_features])
+X_test_scaled = scaler.transform(X_test_raw[numeric_features])
 
-    logreg = LogisticRegression(C=0.1, random_state=0, tol=1e-5)
-    logreg.fit(X_train, y_train)
-    y_pred = logreg.predict(X_test)
-    test_acc = accuracy_score(y_test, y_pred)
-    
+X_train_scaled = pd.DataFrame(X_train_scaled, columns=numeric_features, index=X_train_raw.index)
+X_test_scaled = pd.DataFrame(X_test_scaled, columns=numeric_features, index=X_test_raw.index)
 
-    genre_fingerprint[genre] = pd.Series(logreg.coef_[0], index=features)
-    genre_accuracy[genre] = test_acc
-    
-fingerprints_df = pd.DataFrame(genre_fingerprint)
-print(genre_accuracy)
+
+ohe = OneHotEncoder(sparse_output=False, drop='first', handle_unknown='ignore')
+train_genre_encoded = ohe.fit_transform(X_train_raw[['track_genre']])
+test_genre_encoded = ohe.transform(X_test_raw[['track_genre']])
+
+genre_cols = ohe.get_feature_names_out(['track_genre'])
+train_genre_df = pd.DataFrame(train_genre_encoded, columns=genre_cols, index=X_train_raw.index)
+test_genre_df = pd.DataFrame(test_genre_encoded, columns=genre_cols, index=X_test_raw.index)
+
+
+X_train = pd.concat([X_train_scaled, train_genre_df], axis=1)
+X_test = pd.concat([X_test_scaled, test_genre_df], axis=1)
+
+# oversample the minority class (is hit) 
+ros = RandomOverSampler(random_state=42)
+X_resampled, y_resampled = ros.fit_resample(X_train, y_train)
+
+print("\nTraining ANN model...")
+ann = MLPClassifier(
+    hidden_layer_sizes=(64, 32),
+    activation='relu',
+    solver='adam',
+    batch_size=64,
+    learning_rate_init=0.001,
+    max_iter=2000,
+    random_state=42
+)
+ann.fit(X_resampled, y_resampled)
+
+y_pred = ann.predict(X_test)
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+feature_importance(distinct_genres, X_test, y_test, ann, numeric_features)
 ```
 
-Then we can plot the fingerprint plot to see the contributions of each feature for a specific genre
+Since there are more samples of songs that are not hits (0.0) as compared to hits (1.0) our measurements for accuracy is very misleading. This is a common problem when it comes to working with binary classification models due to imbalances in the dataset. To account for these discrepancies we can utilize certain tools like oversampling the minority class to increase the chances of our model finding a hit song.
 
-```{python}
-# Plot heatmap-style bar chart
-fingerprints_df.T.plot(kind='bar', figsize=(14, 6), title="Feature Importance per Genre (Logistic Coefficients)")
-plt.xlabel("Genre")
-plt.ylabel("Coefficient (Higher = More Likely to Be a Hit)")
-plt.axhline(0, color='black', linewidth=0.5)
-plt.tight_layout()
-plt.show()
-```
+In order to answer the next question "Can a song that deviates from the norm of its genre still be popular", I implemented a KMeans clustering model to create natural groupings of songs and to see if there are any songs that deviate from the clusters that have higher popularity scores.
 
 ```{python}
 from sklearn.cluster import KMeans
@@ -132,8 +174,8 @@ for genre in interesting_genres:
   num_cluster = 3
   df_genre = df[df['track_genre'] == genre].copy()
   scaled = StandardScaler()
-  X_scaled = scaled.fit_transform(df_genre[features])
-  kmeans = KMeans(n_clusters= num_cluster, random_state=0, n_init="auto").fit(X)
+  X_scaled = scaled.fit_transform(df_genre[numeric_features])
+  kmeans = KMeans(n_clusters= num_cluster, random_state=0, n_init="auto").fit(X_scaled)
   
   df_genre['kmeans_cluster'] = kmeans.fit_predict(X_scaled)
   df_genre['kmeans_deviation'] = kmeans.transform(X_scaled).min(axis=1)
@@ -159,8 +201,8 @@ for genre in interesting_genres:
 
 ## Interpretation
 
-From what we see here, the model performs pretty well. For jazz there is an accuracy of 99% and for rock it predicts the hit status with an accuracy of 82%. With the coefficient graphs, if a feature is in the positive direction it increases the songs likelihood of being a hit, while if it is negative, it decreases it. The magnitude indicates how strong the influence is. From the graph we can see that valence and energy seem to be negatively impacting genres rock, pop, soul, and reggeaton. By creating this genre fingerprint mapping, it is easier to see which features contribute to a song's popularity.
+From what we see here, the model performs pretty well in terms of accuratley assessing if a song is not a hit. This is due to the larger volume of observations where tracks don't go over the 'is_hit' threshold of 75. However because of this, we can see our precision is lower for predicting a 'hit' song at around 0.23. Due to the low chances of songs being a hit, there are less observations of hit songs in the set. With our target class being a minority, this can lead to dataset imbalances which impact the interpretability of our model's accuracy. This is why I chose to use the f1 evaluation metric to make sure I can properly assess its precision and recall scores which gives a better understanding of the model's performance. The barplots help identify the features that contribute to a song's popularity within a genre. If a bar is greater than 0 it indicates that the feature has a positive impact to the popularity of a song and the larger the magnitude, the stronger the influence, and vice versa.
 
-As for the second question, can songs that deviate from their genre's fingerprint still be successful, the answer to this question comes from taking a closer look at the scatter plots and smoothed histograms of each genre. From what can be seen in each of the smoothed histogram plots, there is a strong overlap between the hit and non-hit songs which can indicate that deviation from the norm doesn't matter much and doesn't impact popularity of a song or if it can be classified as a hit. Howver it is interesting to note that some of the genres have a broader distribution of deviations such as pop and country. The tails of these distributions extend towards the right which can indicate that they have some hits that are very unusual compared to the norm. Most of the genres have a common trend of having a higher density of songs 2 deviations away from the norm for both hit and non-hit categories. This can mean that both hit and non-hit songs can be defined as atypical based on how the clusters are defined. This concludes that deviating from the genre's fingerprint is a weak predictor of a successful song. 
+As for the second question, can songs that deviate from their genre's fingerprint still be successful, the answer to this question comes from taking a closer look at the scatter plots and smoothed histograms of each genre. From what can be seen in each of the smoothed histogram plots, there is a strong overlap between the hit and non-hit songs which can indicate that deviation from the norm doesn't matter much and doesn't impact popularity of a song or if it can be classified as a hit. Howver it is interesting to note that some of the genres have a broader distribution of deviations such as pop and country. The tails of these distributions extend towards the right which can indicate that they have some hits that are very unusual compared to the norm. Most of the genres have a common trend of having a higher density of songs 2 deviations away from the norm for both hit and non-hit categories. This can mean that both hit and non-hit songs can be defined as atypical based on how the clusters are defined. This concludes that deviating from the genre's fingerprint is a weak predictor of a successful song.
 
-As a result, a songs success within a genre depends on a unique blend of audio features which we have demonstated earlier with the heatmap of the features and their genres. Using the logistic regression model, we see that it can perform well with the given features in a binary classification problem. Song deviations, as we discussed earlier, don't indicate much about the success of the song itself which we questioned in our research motivation. These findings help solidify our understanding of what sort of features make up a genre and which ones contribute positively and negatively. This can be a helpful tool for those who are interested in producing songs in a specific genre and want to understand what elements can help create a hit. It can also be reassuring to know that songs don't need to follow these exact feature contribution mappings to be successful given that most songs that are hits are within a certain deviation away from the genre norm. 
+As a result, a songs success within a genre depends on a unique blend of audio features which we have demonstated earlier with the heat map of the features and their genres. Using the neural network MLP model, we see that it can perform well with the given features in a binary classification problem. Song deviations, as we discussed earlier, don't indicate much about the success of the song itself which we questioned in our research motivation. These findings help solidify our understanding of what sort of features make up a genre and which ones contribute positively and negatively. This can be a helpful tool for those who are interested in producing songs in a specific genre and want to understand what elements can help create a hit. It can also be reassuring to know that songs don't need to follow these exact feature contribution mappings to be successful given that most songs that are hits are within a certain deviation away from the genre norm.

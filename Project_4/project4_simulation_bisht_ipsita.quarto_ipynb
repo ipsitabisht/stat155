@@ -1,0 +1,198 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"project4_simulation_bisht_ipsita\"\n",
+        "format: html\n",
+        "editor: visual\n",
+        "---\n",
+        "\n",
+        "\n",
+        "## Monte Carlo Simulation on Spotify Tracks\n",
+        "\n",
+        "For this experiment, I would like to take a look at how adjusting the presence of hits in a dataset can affect our model (Artificial Neural Network) and its performance in predicting hits. All parts of the simulation haven't been fully implemented yet aside from the data generation step.\n",
+        "\n",
+        "## Set up\n"
+      ],
+      "id": "231a5cfa"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.preprocessing import StandardScaler\n",
+        "from sklearn.neural_network import MLPClassifier\n",
+        "from sklearn.ensemble import RandomForestClassifier\n",
+        "from sklearn.preprocessing import OneHotEncoder\n",
+        "\n",
+        "from sklearn.metrics import classification_report\n",
+        "from sklearn.metrics import f1_score, accuracy_score,  precision_score, recall_score, roc_auc_score \n",
+        "\n",
+        "from imblearn.over_sampling import RandomOverSampler\n",
+        "# loads our dataset and converts to dataframe\n",
+        "df = pd.read_csv(\"../Project_1/data/spotify_cleaned.csv\")"
+      ],
+      "id": "e2c8d9cc",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Data Generation Function\n"
+      ],
+      "id": "89d327d0"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def generate_data(n, hit_proportion, numeric_features, genres):\n",
+        "  data = {}\n",
+        "  for feature in numeric_features.items():\n",
+        "      data[feature] = np.random.uniform(0, 1, n)\n",
+        "\n",
+        "\n",
+        "  data['track_genre'] = np.random.choice(genres, n)\n",
+        "\n",
+        "  df = pd.DataFrame(data)\n",
+        "\n",
+        "  # get the number of hits based on the proportion specified in parameter\n",
+        "  num_hits = int(n * hit_proportion)\n",
+        "  is_hit = np.zeros(n, dtype=int)\n",
+        "  \n",
+        "  # assign the hit values randomly \n",
+        "  hit_indices = np.random.choice(n, num_hits, replace=False)\n",
+        "  is_hit[hit_indices] = 1\n",
+        "  \n",
+        "  df['is_hit'] = is_hit\n",
+        "  \n",
+        "  return df"
+      ],
+      "id": "b70fb4ea",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Simulation Loop\n"
+      ],
+      "id": "4bd00c57"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "results = []\n",
+        "hit_proportions = [0.01, 0.05, 0.1]\n",
+        "\n",
+        "numeric_features = ['danceability', 'energy', 'valence', 'acousticness', 'speechiness', 'instrumentalness', 'tempo', 'loudness']\n",
+        "\n",
+        "distinct_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton', 'house', 'techno', 'k-pop']\n",
+        "\n",
+        "# Define models to compare\n",
+        "models = {\n",
+        "    \"ANN\": MLPClassifier(\n",
+        "        hidden_layer_sizes=(64, 32),\n",
+        "        activation='relu',\n",
+        "        solver='adam',\n",
+        "        batch_size=64,\n",
+        "        learning_rate_init=0.001,\n",
+        "        max_iter=500,\n",
+        "        random_state=42,\n",
+        "        early_stopping=True,\n",
+        "        n_iter_no_change=20\n",
+        "    ),\n",
+        "    \"RandomForest\": RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced'),\n",
+        "}\n",
+        "# loop through hit levels\n",
+        "for prop in hit_proportions:\n",
+        "    for i in range(20):\n",
+        "      # generate our dataset \n",
+        "      df_gen = generate_data(5000, prop, numeric_features, distinct_genres)\n",
+        "      X = df_gen.drop('is_hit', axis=1)\n",
+        "      y = df_gen['is_hit']\n",
+        "      \n",
+        "      # split into training and testing sets\n",
+        "      X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=i)\n",
+        "      \n",
+        "      # preprocess and onehotencode and oversampling done here \n",
+        "      # test with two models \n",
+        "      for model_name, model in models.items():\n",
+        "            model.fit(X_train, y_train)\n",
+        "            y_pred = model.predict(X_test)\n",
+        "            \n",
+        "            # calculate metrics \n",
+        "           \n",
+        "            results.append({\n",
+        "                  # metrics added here \n",
+        "                })\n"
+      ],
+      "id": "28253e2b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Results Summary\n"
+      ],
+      "id": "cedea6f8"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "results_df = pd.DataFrame(results)\n",
+        "summary = results_df.groupby(['Model', 'Prevalence']).agg(\n",
+        "  # include metrics on recall, precision, f1 score (means and standard devs)\n",
+        ").reset_index()\n",
+        "\n",
+        "summary"
+      ],
+      "id": "26d53a85",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "\\<style scoped\\> .dataframe tbody tr th:only-of-type { vertical-align: middle; }\n",
+        "\n",
+        "```         \n",
+        ".dataframe tbody tr th {\n",
+        "    vertical-align: top;\n",
+        "}\n",
+        "\n",
+        ".dataframe thead th {\n",
+        "    text-align: right;\n",
+        "}\n",
+        "```\n",
+        "\n",
+        "\\</style\\>"
+      ],
+      "id": "fd246ff4"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/Users/ipsitabisht/Desktop/stat155/venv/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

@@ -1,0 +1,131 @@
+---
+title: "project4_simulation_bisht_ipsita"
+format: html
+editor: visual
+---
+
+## Monte Carlo Simulation on Spotify Tracks
+
+For this experiment, I would like to take a look at how adjusting the presence of hits in a dataset can affect our model (Artificial Neural Network) and its performance in predicting hits. All parts of the simulation haven't been fully implemented yet aside from the data generation step.
+
+## Set up
+
+```{python}
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import OneHotEncoder
+
+from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score, accuracy_score,  precision_score, recall_score, roc_auc_score 
+
+from imblearn.over_sampling import RandomOverSampler
+# loads our dataset and converts to dataframe
+df = pd.read_csv("../Project_1/data/spotify_cleaned.csv")
+```
+
+## Data Generation Function
+
+```{python}
+def generate_data(n, hit_proportion, numeric_features, genres):
+  data = {}
+  for feature in numeric_features.items():
+      data[feature] = np.random.uniform(0, 1, n)
+
+
+  data['track_genre'] = np.random.choice(genres, n)
+
+  df = pd.DataFrame(data)
+
+  # get the number of hits based on the proportion specified in parameter
+  num_hits = int(n * hit_proportion)
+  is_hit = np.zeros(n, dtype=int)
+  
+  # assign the hit values randomly 
+  hit_indices = np.random.choice(n, num_hits, replace=False)
+  is_hit[hit_indices] = 1
+  
+  df['is_hit'] = is_hit
+  
+  return df
+
+```
+
+## Simulation Loop
+
+```{python}
+
+results = []
+hit_proportions = [0.01, 0.05, 0.1]
+
+numeric_features = ['danceability', 'energy', 'valence', 'acousticness', 'speechiness', 'instrumentalness', 'tempo', 'loudness']
+
+distinct_genres = ['jazz', 'country', 'rock', 'dubstep', 'pop', 'heavy-metal','bluegrass', 'soul', 'reggaeton', 'house', 'techno', 'k-pop']
+
+# Define models to compare
+models = {
+    "ANN": MLPClassifier(
+        hidden_layer_sizes=(64, 32),
+        activation='relu',
+        solver='adam',
+        batch_size=64,
+        learning_rate_init=0.001,
+        max_iter=500,
+        random_state=42,
+        early_stopping=True,
+        n_iter_no_change=20
+    ),
+    "RandomForest": RandomForestClassifier(n_estimators=100, random_state=42, class_weight='balanced'),
+}
+# loop through hit levels
+for prop in hit_proportions:
+    for i in range(20):
+      # generate our dataset 
+      df_gen = generate_data(5000, prop, numeric_features, distinct_genres)
+      X = df_gen.drop('is_hit', axis=1)
+      y = df_gen['is_hit']
+      
+      # split into training and testing sets
+      X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=i)
+      
+      # preprocess and onehotencode and oversampling done here 
+      # test with two models 
+      for model_name, model in models.items():
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            
+            # calculate metrics 
+           
+            results.append({
+                  # metrics added here 
+                })
+      
+```
+
+## Results Summary
+
+```{python}
+results_df = pd.DataFrame(results)
+summary = results_df.groupby(['Model', 'Prevalence']).agg(
+  # include metrics on recall, precision, f1 score (means and standard devs)
+).reset_index()
+
+summary
+```
+
+\<style scoped\> .dataframe tbody tr th:only-of-type { vertical-align: middle; }
+
+```         
+.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+```
+
+\</style\>

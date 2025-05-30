@@ -11,7 +11,7 @@ Music features and preferences vary across different genres which can lead to va
 1.  What audio features best predict a track's popularity within specific genres, and how do these success factors differ across genres?
 2.  Could track lists that deviate from the typical features of their genre still be successful?
 
-In order to predict if a song is a hit and is actually 'popular' I created a vzariable called 'is_hit' to be a benchmark for determining if a song is popular or not.
+In order to predict if a song is a hit and is actually 'popular' I created a variable called 'is_hit' to be a benchmark for determining if a song is popular or not.
 
 To assess the popularity of a song, we will take a look at the following music features: `jazz, country, rock, dubstep, pop, heavy-metal, bluegrass, soul, reggaeton, house, techno, k-pop`
 

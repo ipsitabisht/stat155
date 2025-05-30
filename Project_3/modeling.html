@@ -103,9 +103,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>What audio features best predict a track’s popularity within specific genres, and how do these success factors differ across genres?</li>
 <li>Could track lists that deviate from the typical features of their genre still be successful?</li>
 </ol>
-<p>In order to predict if a song is a hit and is actually ‘popular’ I created a vzariable called ‘is_hit’ to be a benchmark for determining if a song is popular or not.</p>
+<p>In order to predict if a song is a hit and is actually ‘popular’ I created a variable called ‘is_hit’ to be a benchmark for determining if a song is popular or not.</p>
 <p>To assess the popularity of a song, we will take a look at the following music features: <code>jazz, country, rock, dubstep, pop, heavy-metal, bluegrass, soul, reggaeton, house, techno, k-pop</code></p>
-<div id="203db155" class="cell" data-execution_count="1">
+<div id="040b5130" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> load_data <span class="im">import</span> load_file</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -113,7 +113,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> load_file()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>From what we can see in each of these genres, not all songs will achieve the ‘hit’ status. In our code, which you will see in the coming steps, we disregard the genres where there are no hits or if all the songs have a hit status.</p>
-<div id="0b887ef9" class="cell" data-execution_count="2">
+<div id="71f567d9" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -138,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
 <p>To answer the research questions above, specifically the first one, logistic regression model is used to help classify a song as ‘a_hit’(1 or 0) based on the features mentioned earlier. This model is run on each genre individually. The data set is split between training and testing with 80% set aside for training and 20% for testing. With the this model, we can take a look at the feature coefficients to see how each feature directly contributes to a songs ‘hit’ status.</p>
 <p>We will train the model using these features:</p>
-<div id="3ab5aa08" class="cell" data-execution_count="3">
+<div id="c3c6bb5e" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>numeric_features <span class="op">=</span> [<span class="st">'danceability'</span>, <span class="st">'energy'</span>, <span class="st">'valence'</span>, <span class="st">'acousticness'</span>,</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                        <span class="st">'speechiness'</span>, <span class="st">'instrumentalness'</span>, <span class="st">'tempo'</span>, <span class="st">'loudness'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -152,7 +152,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Evaluated the test set’s accuracy and f1 evaluation metrics</li>
 <li>Use Permutation Importance to calculate feature contributions in each genre</li>
 </ol>
-<div id="61373044" class="cell" data-execution_count="4">
+<div id="5ec19b11" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the function for calculating feature importance per genre and generating plots </span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feature_importance(genres, X, y, model, numeric_features):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> genre <span class="kw">in</span> genres:</span>
@@ -190,7 +190,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        plt.tight_layout()</span>
 <span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="50048cb9" class="cell" data-execution_count="5">
+<div id="a14ce917" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler, OneHotEncoder</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.neural_network <span class="im">import</span> MLPClassifier</span>
@@ -350,7 +350,7 @@ weighted avg       0.90      0.89      0.89      2183
 </div>
 <p>Since there are more samples of songs that are not hits (0.0) as compared to hits (1.0) our measurements for accuracy is very misleading. This is a common problem when it comes to working with binary classification models due to imbalances in the dataset. To account for these discrepancies we can utilize certain tools like oversampling the minority class to increase the chances of our model finding a hit song.</p>
 <p>In order to answer the next question “Can a song that deviates from the norm of its genre still be popular”, I implemented a KMeans clustering model to create natural groupings of songs and to see if there are any songs that deviate from the clusters that have higher popularity scores.</p>
-<div id="cab33dce" class="cell" data-execution_count="6">
+<div id="d741cf5f" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.cluster <span class="im">import</span> KMeans</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> genre <span class="kw">in</span> interesting_genres:</span>

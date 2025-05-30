@@ -101,11 +101,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="monte-carlo-simulation-on-spotify-tracks" class="level2">
 <h2 class="anchored" data-anchor-id="monte-carlo-simulation-on-spotify-tracks">Monte Carlo Simulation on Spotify Tracks</h2>
-<p>For this experiment, I would like to take a look at how adjusting the presence of hits in a dataset can affect our model (Artificial Neural Network) and its performance in predicting hits.</p>
+<p>For this experiment, I would like to take a look at how adjusting the presence of hits in a dataset can affect our model (Artificial Neural Network) and its performance in predicting hits. All parts of the simulation haven’t been fully implemented yet aside from the data generation step.</p>
 </section>
 <section id="set-up" class="level2">
 <h2 class="anchored" data-anchor-id="set-up">Set up</h2>
-<div id="b7fe1023" class="cell" data-execution_count="1">
+<div id="de1ee462" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
@@ -115,44 +115,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> OneHotEncoder</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> classification_report</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> f1_score, accuracy_score,  precision_score, recall_score, roc_auc_score </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> imblearn.over_sampling <span class="im">import</span> RandomOverSampler</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># loads our dataset and converts to dataframe</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"../Project_1/data/spotify_cleaned.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> confusion_matrix</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> f1_score, accuracy_score,  precision_score, recall_score, roc_auc_score </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> imblearn.over_sampling <span class="im">import</span> RandomOverSampler</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># loads our dataset and converts to dataframe</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"../Project_1/data/spotify_cleaned.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="data-generation-function" class="level2">
 <h2 class="anchored" data-anchor-id="data-generation-function">Data Generation Function</h2>
-<div id="3df8534f" class="cell" data-execution_count="2">
+<div id="1fc5b158" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_data(n, hit_proportion, numeric_features, genres):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  data <span class="op">=</span> {}</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> feature, (min_val, max_val) <span class="kw">in</span> numeric_feature_ranges.items():</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>      data[feature] <span class="op">=</span> np.random.uniform(min_val, max_val, n)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  data[<span class="st">'track_genre'</span>] <span class="op">=</span> np.random.choice(genres, n)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.DataFrame(data)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get the number of hits based on the proportion specified in parameter</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  num_hits <span class="op">=</span> <span class="bu">int</span>(n <span class="op">*</span> hit_proportion)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  is_hit <span class="op">=</span> np.zeros(n, dtype<span class="op">=</span><span class="bu">int</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># assign the hit values randomly </span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  hit_indices <span class="op">=</span> np.random.choice(n, num_hits, replace<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  is_hit[hit_indices] <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'is_hit'</span>] <span class="op">=</span> is_hit</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  data[<span class="st">'track_genre'</span>] <span class="op">=</span> np.random.choice(genres, n)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.DataFrame(data)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># get the number of hits based on the proportion specified in parameter</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  num_hits <span class="op">=</span> <span class="bu">int</span>(n <span class="op">*</span> hit_proportion)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  is_hit <span class="op">=</span> np.zeros(n, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># assign the hit values randomly </span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  hit_indices <span class="op">=</span> np.random.choice(n, num_hits, replace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  is_hit[hit_indices] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  df[<span class="st">'is_hit'</span>] <span class="op">=</span> is_hit</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="simulation-loop" class="level2">
 <h2 class="anchored" data-anchor-id="simulation-loop">Simulation Loop</h2>
-<div id="a05626ee" class="cell" data-execution_count="3">
+<div id="edd0478c" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>hit_proportions <span class="op">=</span> [<span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.1</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>hit_proportions <span class="op">=</span> [<span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.55</span>]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>numeric_features <span class="op">=</span> [<span class="st">'danceability'</span>, <span class="st">'energy'</span>, <span class="st">'valence'</span>, <span class="st">'acousticness'</span>, <span class="st">'speechiness'</span>, <span class="st">'instrumentalness'</span>, <span class="st">'tempo'</span>, <span class="st">'loudness'</span>]</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>numeric_feature_ranges <span class="op">=</span> {</span>
@@ -212,41 +212,527 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> model_name, model <span class="kw">in</span> models.items():</span>
 <span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>            model.fit(X_train_processed, y_train)</span>
 <span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>            y_pred <span class="op">=</span> model.predict(X_test_processed)</span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>            </span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>            <span class="co"># calculate metrics </span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>            accuracy <span class="op">=</span> accuracy_score(y_test, y_pred)</span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>            f1 <span class="op">=</span> f1_score(y_test, y_pred, average<span class="op">=</span><span class="st">'binary'</span>)</span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>            precision <span class="op">=</span> precision_score(y_test, y_pred, average<span class="op">=</span><span class="st">'binary'</span>, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>            recall <span class="op">=</span> recall_score(y_test, y_pred, average<span class="op">=</span><span class="st">'binary'</span>, zero_division<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>           </span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>            results.append({</span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Model'</span>: model_name,</span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Prevalence'</span>: prop,</span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Simulation_Run'</span>: i <span class="op">+</span> <span class="dv">1</span>,</span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Accuracy'</span>: accuracy,</span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Precision'</span>: precision,</span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Recall'</span>: recall,</span>
-<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'F1_Score'</span>: f1</span>
-<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>                })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>            cm <span class="op">=</span> confusion_matrix(y_test, y_pred)</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Confusion Matrix for </span><span class="sc">{</span>model_name<span class="sc">}</span><span class="ss"> | Hit Prevalence: </span><span class="sc">{</span>prop<span class="sc">}</span><span class="ss">, Run: </span><span class="sc">{</span>i <span class="op">+</span> <span class="dv">1</span><span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(cm)</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>            <span class="co"># calculate metrics </span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>            accuracy <span class="op">=</span> accuracy_score(y_test, y_pred)</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>            f1 <span class="op">=</span> <span class="bu">round</span>(f1_score(y_test, y_pred, average<span class="op">=</span><span class="st">'binary'</span>, pos_label<span class="op">=</span><span class="dv">1</span>),<span class="dv">10</span>)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>            precision <span class="op">=</span> <span class="bu">round</span>(precision_score(y_test, y_pred, average<span class="op">=</span><span class="st">'binary'</span>,pos_label<span class="op">=</span><span class="dv">1</span>, zero_division<span class="op">=</span><span class="dv">0</span>),<span class="dv">10</span>)</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>            recall <span class="op">=</span> <span class="bu">round</span>(recall_score(y_test, y_pred, average<span class="op">=</span><span class="st">'binary'</span>, pos_label<span class="op">=</span><span class="dv">1</span>, zero_division<span class="op">=</span><span class="dv">0</span>),<span class="dv">10</span>)</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>           </span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>            results.append({</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Model'</span>: model_name,</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Prevalence'</span>: prop,</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Simulation_Run'</span>: i <span class="op">+</span> <span class="dv">1</span>,</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Accuracy'</span>: accuracy,</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Precision'</span>: precision,</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'Recall'</span>: recall,</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'F1_Score'</span>: f1</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>                })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 1
+[[989   0]
+ [ 11   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 1
+[[989   0]
+ [ 11   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 2
+[[988   0]
+ [ 12   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 2
+[[988   0]
+ [ 12   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 3
+[[987   0]
+ [ 13   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 3
+[[987   0]
+ [ 13   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 4
+[[986   0]
+ [ 14   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 4
+[[986   0]
+ [ 14   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 5
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 5
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 6
+[[993   0]
+ [  7   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 6
+[[993   0]
+ [  7   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 7
+[[985   0]
+ [ 15   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 7
+[[985   0]
+ [ 15   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 8
+[[992   0]
+ [  8   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 8
+[[992   0]
+ [  8   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 9
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 9
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 10
+[[993   0]
+ [  7   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 10
+[[993   0]
+ [  7   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 11
+[[987   0]
+ [ 13   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 11
+[[987   0]
+ [ 13   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 12
+[[992   0]
+ [  8   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 12
+[[992   0]
+ [  8   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 13
+[[991   0]
+ [  9   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 13
+[[991   0]
+ [  9   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 14
+[[992   0]
+ [  8   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 14
+[[992   0]
+ [  8   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 15
+[[988   0]
+ [ 12   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 15
+[[988   0]
+ [ 12   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 16
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 16
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 17
+[[989   0]
+ [ 11   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 17
+[[989   0]
+ [ 11   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 18
+[[988   0]
+ [ 12   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 18
+[[988   0]
+ [ 12   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 19
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 19
+[[990   0]
+ [ 10   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.01, Run: 20
+[[989   0]
+ [ 11   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.01, Run: 20
+[[989   0]
+ [ 11   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 1
+[[943   0]
+ [ 57   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 1
+[[943   0]
+ [ 57   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 2
+[[942   0]
+ [ 58   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 2
+[[942   0]
+ [ 58   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 3
+[[951   0]
+ [ 49   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 3
+[[951   0]
+ [ 49   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 4
+[[945   0]
+ [ 55   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 4
+[[945   0]
+ [ 55   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 5
+[[954   0]
+ [ 46   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 5
+[[954   0]
+ [ 46   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 6
+[[944   0]
+ [ 56   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 6
+[[944   0]
+ [ 56   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 7
+[[957   0]
+ [ 43   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 7
+[[957   0]
+ [ 43   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 8
+[[947   0]
+ [ 53   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 8
+[[947   0]
+ [ 53   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 9
+[[941   0]
+ [ 59   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 9
+[[941   0]
+ [ 59   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 10
+[[961   0]
+ [ 39   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 10
+[[961   0]
+ [ 39   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 11
+[[951   0]
+ [ 49   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 11
+[[951   0]
+ [ 49   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 12
+[[945   0]
+ [ 55   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 12
+[[945   0]
+ [ 55   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 13
+[[949   0]
+ [ 51   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 13
+[[949   0]
+ [ 51   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 14
+[[953   0]
+ [ 47   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 14
+[[953   0]
+ [ 47   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 15
+[[947   0]
+ [ 53   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 15
+[[947   0]
+ [ 53   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 16
+[[956   0]
+ [ 44   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 16
+[[956   0]
+ [ 44   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 17
+[[949   0]
+ [ 51   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 17
+[[949   0]
+ [ 51   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 18
+[[961   0]
+ [ 39   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 18
+[[961   0]
+ [ 39   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 19
+[[949   0]
+ [ 51   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 19
+[[949   0]
+ [ 51   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.05, Run: 20
+[[948   0]
+ [ 52   0]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.05, Run: 20
+[[948   0]
+ [ 52   0]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 1
+[[ 42 407]
+ [ 43 508]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 1
+[[131 318]
+ [155 396]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 2
+[[ 48 424]
+ [ 55 473]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 2
+[[129 343]
+ [158 370]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 3
+[[ 35 424]
+ [ 40 501]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 3
+[[140 319]
+ [148 393]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 4
+[[ 71 403]
+ [ 82 444]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 4
+[[115 359]
+ [131 395]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 5
+[[ 12 429]
+ [ 10 549]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 5
+[[141 300]
+ [177 382]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 6
+[[ 72 383]
+ [116 429]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 6
+[[131 324]
+ [155 390]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 7
+[[177 263]
+ [206 354]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 7
+[[144 296]
+ [189 371]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 8
+[[ 16 433]
+ [ 16 535]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 8
+[[131 318]
+ [178 373]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 9
+[[ 25 418]
+ [ 25 532]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 9
+[[133 310]
+ [168 389]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 10
+[[ 48 412]
+ [ 48 492]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 10
+[[141 319]
+ [163 377]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 11
+[[ 90 364]
+ [119 427]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 11
+[[128 326]
+ [161 385]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 12
+[[  3 447]
+ [  8 542]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 12
+[[141 309]
+ [166 384]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 13
+[[ 57 429]
+ [ 66 448]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 13
+[[124 362]
+ [138 376]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 14
+[[ 27 419]
+ [ 56 498]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 14
+[[131 315]
+ [165 389]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 15
+[[105 339]
+ [118 438]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 15
+[[142 302]
+ [158 398]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 16
+[[116 343]
+ [120 421]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 16
+[[126 333]
+ [165 376]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 17
+[[ 91 366]
+ [113 430]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 17
+[[126 331]
+ [150 393]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 18
+[[ 88 344]
+ [110 458]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 18
+[[118 314]
+ [181 387]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 19
+[[ 91 350]
+ [118 441]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 19
+[[129 312]
+ [169 390]]
+
+Confusion Matrix for ANN | Hit Prevalence: 0.55, Run: 20
+[[ 89 368]
+ [127 416]]
+
+Confusion Matrix for RandomForest | Hit Prevalence: 0.55, Run: 20
+[[132 325]
+ [159 384]]</code></pre>
+</div>
 </div>
 </section>
 <section id="results-summary" class="level2">
 <h2 class="anchored" data-anchor-id="results-summary">Results Summary</h2>
-<div id="fbf01dc6" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>results_df <span class="op">=</span> pd.DataFrame(results)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> results_df.groupby([<span class="st">'Model'</span>, <span class="st">'Prevalence'</span>]).agg(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    Mean_Accuracy<span class="op">=</span>(<span class="st">'Accuracy'</span>, <span class="st">'mean'</span>),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    SD_Accuracy<span class="op">=</span>(<span class="st">'Accuracy'</span>, <span class="st">'std'</span>),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    Mean_F1_Score<span class="op">=</span>(<span class="st">'F1_Score'</span>, <span class="st">'mean'</span>),</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    SD_F1_Score<span class="op">=</span>(<span class="st">'F1_Score'</span>, <span class="st">'std'</span>),</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    Mean_Precision<span class="op">=</span>(<span class="st">'Precision'</span>, <span class="st">'mean'</span>),</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    SD_Precision<span class="op">=</span>(<span class="st">'Precision'</span>, <span class="st">'std'</span>),</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    Mean_Recall<span class="op">=</span>(<span class="st">'Recall'</span>, <span class="st">'mean'</span>),</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    SD_Recall<span class="op">=</span>(<span class="st">'Recall'</span>, <span class="st">'std'</span>),  </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div id="285d6d5d" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>results_df <span class="op">=</span> pd.DataFrame(results)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> results_df.groupby([<span class="st">'Model'</span>, <span class="st">'Prevalence'</span>]).agg(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    Mean_Accuracy<span class="op">=</span>(<span class="st">'Accuracy'</span>, <span class="st">'mean'</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    SD_Accuracy<span class="op">=</span>(<span class="st">'Accuracy'</span>, <span class="st">'std'</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    Mean_F1_Score<span class="op">=</span>(<span class="st">'F1_Score'</span>, <span class="st">'mean'</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    SD_F1_Score<span class="op">=</span>(<span class="st">'F1_Score'</span>, <span class="st">'std'</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    Mean_Precision<span class="op">=</span>(<span class="st">'Precision'</span>, <span class="st">'mean'</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    SD_Precision<span class="op">=</span>(<span class="st">'Precision'</span>, <span class="st">'std'</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    Mean_Recall<span class="op">=</span>(<span class="st">'Recall'</span>, <span class="st">'mean'</span>),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    SD_Recall<span class="op">=</span>(<span class="st">'Recall'</span>, <span class="st">'std'</span>),  </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
 <div>
 
 
@@ -272,78 +758,78 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>ANN</td>
 <td>0.01</td>
 <td>0.98945</td>
-<td>0.003332</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
+<td>0.002282</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>ANN</td>
 <td>0.05</td>
-<td>0.95205</td>
-<td>0.005987</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
+<td>0.94965</td>
+<td>0.005878</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>ANN</td>
-<td>0.10</td>
-<td>0.90005</td>
-<td>0.008852</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
+<td>0.55</td>
+<td>0.53195</td>
+<td>0.017721</td>
+<td>0.664256</td>
+<td>0.030677</td>
+<td>0.546230</td>
+<td>0.016459</td>
+<td>0.854190</td>
+<td>0.092319</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
 <td>RandomForest</td>
 <td>0.01</td>
 <td>0.98945</td>
-<td>0.003332</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
+<td>0.002282</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
 <td>RandomForest</td>
 <td>0.05</td>
-<td>0.95205</td>
-<td>0.005987</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
+<td>0.94965</td>
+<td>0.005878</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
 <td>RandomForest</td>
-<td>0.10</td>
-<td>0.90005</td>
-<td>0.008852</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>0.0</td>
+<td>0.55</td>
+<td>0.51655</td>
+<td>0.010909</td>
+<td>0.614200</td>
+<td>0.009804</td>
+<td>0.544926</td>
+<td>0.014789</td>
+<td>0.704478</td>
+<td>0.020494</td>
 </tr>
 </tbody>
 </table>

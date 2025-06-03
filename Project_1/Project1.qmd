@@ -18,7 +18,7 @@ Some studies have shown that there were common features that top chart songs had
 
 That is why I will be studying how these different musical features can contribute to the success of certain songs within a genre and also look into what other attributes come about while exploring the data set. This can be helpful in understanding trends and evolution of musical preferences and also can be applicable to music producers/artists who want to enhance their musical performance and production within the genre they cater to.
 
-#### reference
+#### Reference
 
 Interiano, M., Kazemi, K., Wang, L., Yang, J., Yu, Z., & Komarova, N. L. (2018). Musical trends and predictability of success in contemporary songs in and out of the top charts. Royal Society Open Science
 

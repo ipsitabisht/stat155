@@ -17,10 +17,8 @@ To assess the popularity of a song, we will take a look at the following music f
 
 ```{python}
 import pandas as pd 
-from load_data import load_file
 
-
-df = load_file()
+df = pd.read_csv('../Project_1/data/spotify_cleaned.csv')
 ```
 
 From what we can see in each of these genres, not all songs will achieve the 'hit' status. In our code, which you will see in the coming steps, we disregard the genres where there are no hits or if all the songs have a hit status.

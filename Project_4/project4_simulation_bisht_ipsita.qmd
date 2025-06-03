@@ -19,9 +19,14 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OneHotEncoder
 
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score, accuracy_score,  precision_score, recall_score, roc_auc_score 
+
+
 
 from imblearn.over_sampling import RandomOverSampler
 # loads our dataset and converts to dataframe
@@ -60,7 +65,7 @@ def generate_data(n, hit_proportion, numeric_features, genres):
 ```{python}
 
 results = []
-hit_proportions = [0.01, 0.05, 0.55]
+hit_proportions = [0.01, 0.2, 0.55]
 
 numeric_features = ['danceability', 'energy', 'valence', 'acousticness', 'speechiness', 'instrumentalness', 'tempo', 'loudness']
 numeric_feature_ranges = {
@@ -88,7 +93,7 @@ models = {
 for prop in hit_proportions:
     for i in range(20):
       # generate our dataset 
-      df_gen = generate_data(5000, prop, numeric_feature_ranges, distinct_genres)
+      df_gen = generate_data(10000, prop, numeric_feature_ranges, distinct_genres)
       X = df_gen.drop('is_hit', axis=1)
       y = df_gen['is_hit']
       
@@ -115,7 +120,8 @@ for prop in hit_proportions:
       
       ros = RandomOverSampler(random_state=42)
       X_resampled, y_resampled = ros.fit_resample(X_train_processed, y_train)
-            
+      
+    
       # test with two models 
       for model_name, model in models.items():
             model.fit(X_train_processed, y_train)
@@ -159,6 +165,29 @@ summary = results_df.groupby(['Model', 'Prevalence']).agg(
 ).reset_index()
 
 summary
+```
+
+```{python}
+
+#ANOVA ANALYSIS
+from statsmodels.formula.api import ols
+import statsmodels.api as sm
+
+model = ols('F1_Score ~ C(Model) * C(Prevalence)', data=results_df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table)
+
+```
+
+```{python}
+plt.figure(figsize=(10, 6))
+sns.boxplot(data=results_df, x='Prevalence', y='F1_Score', hue='Model')
+plt.title("Model Performance (F1 Score) by Hit Prevalence")
+plt.xlabel("Hit Prevalence")
+plt.ylabel("F1 Score")
+plt.legend(title="Model")
+plt.tight_layout()
+plt.show()
 ```
 
 \<style scoped\> .dataframe tbody tr th:only-of-type { vertical-align: middle; }

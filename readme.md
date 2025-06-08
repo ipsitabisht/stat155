@@ -15,16 +15,22 @@ My project explores the Spotify Track Dataset from Kaggle to understand how diff
 
 ### Environment
 
-OS: macOS 14.6\n
-Python: 3.11.11\n
+OS: macOS 14.6<br>
+Python: 3.11.11<br>
 
-Python virtual environment containing data/machine learning libraries included. To activate: \n
-1. In the main directory execute this command in terminal: \n
-```source venv/bin/activate```
+Packages:<br>
+pandas==2.2.3<br>
+numpy==2.1.3<br>
+matplotlib==3.10.1<br>
+seaborn==0.13.2<br>
+scikit-learn==1.6.1<br>
+imbalanced-learn==0.13.0<br>
+imblearn==0.0<br>
+statsmodels==0.14.4<br>
 
 ### Steps to reproduce each project:
 
-1. ensure proper packages are installed using virtual environemnt 
+1. ensure proper packages are installed using virtual environemnt with the listed packages
 2. run the qmd file 
 
 <p align="center">
